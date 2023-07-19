@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Scanner;
 
-public class App {
+public class Gewichtstracker {
     static String url = "jdbc:mysql://localhost:3306/Jan";
     static String username = "";
     static String password = "";
@@ -53,7 +53,7 @@ public class App {
         System.out.println(rs.getInt("id") + "\t" + rs.getDate("date") + "\t" +rs.getDouble("gewicht"));
         }
         } catch (SQLException e) {
-        e.printStackTrace();
+        	e.printStackTrace();
         } 
     }
 
@@ -117,6 +117,34 @@ public class App {
             e.printStackTrace();
         } 
     }
+    
+    public static void settings() {
+    	String createdb = "CREATE DATABASE Jan";
+    	String usedb = "USE Jan";
+        String createtable = "CREATE TABLE gewicht (id INT PRIMARY KEY AUTO_INCREMENT, date DATE NOT NULL, gewicht DECIMAL(5,2) NOT NULL)";
+        
+    	System.out.println("Wollen Sie eine neue Datenbank und Tabelle erstellen? J/N");
+    	Scanner eingabejanein = new Scanner(System.in);
+        String antwort = eingabejanein.next();
+        switch(antwort) {
+        case "J":
+        case "j":
+        	try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/", username, password);
+    	        Statement stmt = conn.createStatement();
+    	        ) {
+    	        stmt.executeUpdate(createdb);
+    	        System.out.println("Die Datenbank wurde erfolgreich erstellt");
+    	        stmt.executeUpdate(usedb);
+    	        System.out.println("Es wurde erfolgreich auf die neue Datenbank gewechselt");
+    	        stmt.executeUpdate(createtable);
+    	        System.out.println("Die Tabelle wurde erfolgreich erstellt");
+    	        } catch (SQLException e) {
+    	            e.printStackTrace();
+    	        }
+        default:
+            menu();
+        }
+    }
 
     public static void menu() {
         Scanner benutzereingabe = new Scanner(System.in);
@@ -124,6 +152,7 @@ public class App {
         System.out.println("R - Abfrage aller Einträge (Read)");
         System.out.println("U - Einen Eintrag bearbeiten (Update)");
         System.out.println("D - Einen Eintrag löschen (Delete)");
+        System.out.println("S - Einstellungen (Settings)");
         System.out.println("X - Programm beenden");
         String menu = benutzereingabe.next();
         switch(menu) {
@@ -143,6 +172,10 @@ public class App {
             case "d":
                 delete();
                 menu();
+            case "S":
+            case "s":
+            	settings();
+            	menu();
             case "X":
             case "x":
                 System.exit(0);
@@ -152,6 +185,7 @@ public class App {
             menu();
             }
     }
+    
     public static void main(String[] args) throws Exception {
         System.out.println("\n\n##### Tracking des Gewichts mittels einer MySQL-Datenbank #####");
         login();
